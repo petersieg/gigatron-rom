@@ -1,0 +1,114 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;\f2\fnil\fcharset0 AndaleMono;
+}
+{\colortbl;\red255\green255\blue255;\red251\green0\blue13;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c100000\c4606\c3722;\csgray\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww14000\viewh16000\viewkind0\viewscale150
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 First steps to make a small variation Gigatron rom with your small games/demos:
+\f1\b0 \
+\
+1. Download and unzip Gigatron-rom: \cf2 https://github.com/kervinck/gigatron-rom\cf0 \
+\
+2. Edit Makefile and copy an existing ROM chapter into a new one for you.\
+Example ROMv5a to ROMv5b (Change your apps and path to them!):\
+\
+
+\f2 # my own version of v5a with more games/demos\
+ROMv5\cf2 b\cf0 .rom: Core/* Apps/*/* Makefile interface.json\
+	python3 Core/ROMv5b.asm.py\\\
+		packedPictures=Apps/Pictures/packedPictures.rgb\\\
+		Snake=Apps/Snake/Snake_v3.gcl\\\
+		SYS_Racer_v1.py\\\
+		zippedRacerHorizon=Apps/Racer/Horizon-256x16.rgb\\\
+		Racer=Apps/Racer/Racer_v2.gcl\\\
+		Mandelbrot=Apps/Mandelbrot/Mandelbrot_v1.gcl\\\
+		SYS_Loader_v4.py\\\
+		Pictures=Apps/Pictures/Pictures_v3.gcl\\\
+		Loader=Apps/Loader/Loader_v4.gcl\\\
+		Credits=Apps/Credits/Credits_v3.gcl\\\
+		Tetronis=Apps/Tetronis/Tetronis_v2.gt1\\\
+		Bricks=Apps/Bricks/Bricks_v2.gt1\\\
+\cf2 		Puzzles=Apps/v5x/puzzles.gt1\\\
+		Parsec=Apps/v5x/parsec.gt1\\\
+		Arecibo=Apps/v5x/arecibo.gt1\\\
+		Mosaic=Apps/Mosaic6502/Mosaic6502.gt1\\\
+\cf0 		Egg=Apps/Horizon/Horizon_at67_v1.gt1\\\
+		Boot=Apps/CardBoot/CardBoot_v1.gcl\\\
+		Main=Apps/MainMenu/MainMenu_v5\cf2 b\cf0 .gcl\\\
+		Reset=Core/Reset_v5.gcl\
+\
+burnv5\cf2 b\cf0 : ROMv5\cf2 b\cf0 .rom\
+	minipro -p 'AT27C1024 @DIP40' -w "$<" -y -s\
+
+\f1 \
+3. Copy Core/ROMv5a.asm.px to ROMv5\cf2 b\cf0 .asm.py\
+(No changes required in copied file, but new rom file name seems to depend on this)\
+\
+4. Copy Apps/MainMenu_v5.gcl to Apps/MainMenu_v5\cf2 b\cf0 .gcl\
+\
+\
+5. Edit Apps/MainMenu_v5\cf2 \ul \ulc2 b\cf0 \ulnone ,gcl to reflect your new apps:\
+\
+\ul First place:\ulnone \
+
+\f2     42 \{Gray\} Color= PrintArrow!\
+\
+    [def\
+      ##\\Snake\
+      ##\\Racer\
+      ##\\Mandelbrot\
+      ##\\Pictures\
+      ##\\Credits\
+      ##\\Loader\
+\
+      ##\\Tetronis\
+      ##\\Bricks\
+\cf2       ##\\Puzzles\
+      ##\\Parsec\
+      ##\\Arecibo\
+      ##\\Mosaic\
+\cf0     ]\
+
+\f1 \
+\ul Second place:\ulnone \
+
+\f2 ] Newline=\
+\
+[def\
+  #9 `Snake #9 ``` #9 `Tetronis   #10\
+  #9 `Racer #9 ``` #9 `Bricks     #10\
+  #9 `Mandelbrot   #9 \cf2 `Puzzles    #10\cf0 \
+  #9 `Pictures ``` #9 \cf2 `Parsec     #10\cf0 \
+  #9 `Credits #9   #9 \cf2 `Arecibo    #10\cf0 \
+  #9 `Loader #9 `` #9 \cf2 `Mosaic     #10\cf0  #0\
+] MainMenu=\
+
+\f1 \
+\ul Third place:\ulnone \
+Comment out special handling for MSBASIC/Apple1:\
+\
+
+\f2 \{ Load and start the selected program \}\
+\\SYS_Exec_88 _sysFn=            \{ROM loader\}\
+Program _sysArgs0=              \{ROM image\}\
+\\userCode _vLR=                 \{Start of execution address\}\
+\cf2 \{ \cf0 MenuItem 10- [if<>0 1-]\cf2  \}\cf0      \{XXX MSBASIC and Apple1 need workaround\}\
+[if=0\
+  \\channelMask_v4, $f8&         \{Clear channelMask before loading\}\
+  \\channelMask_v4.]\
+88!!                            \{Load from ROM and execute\}
+\f1 \
+\
+6. Run make ROMv5b.ROM\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2 \cf3 \CocoaLigature0 Create file ROMv5b.lst\
+Create file ROMv5b.rom\
+ROM bytes 131072 words 65536\
+Words used 49920 unused 15616\
+Assembly OK\
+
+{\*\beandata789c9d935d6f82301486aff157748db752d876b12d8851c1c4cc2099b86497153a65e32ba5cef1ef57444aeb66b68c1bda73fabe4f7b4e6b8d3ed3047c105ac6793684a66e4040b2308fe26c3b84eb6036b88323bb675d39cb69f0e2bba048e292017f3d59cca7000e101a17454210720207f88bf92a00dc0321d78300ee182b1e103a1c0e3aae57e9619ed60b4be4d3bc2094550b6e36e0023d6211e498c65dd90e8f4671c8ec9e66bd93caee631aee62bec242f594474b46f9666d6ff5482a128d45fa146f75f9e68d84ac14324c29ae07c2a09fed934492692d573b3984092e855e4e37f9e9acbf9e3b5d5eb3e28c912da1f6ad85dae1518854636fa5f39fec2cf6a6502e603aceb5ca5140a8f36ca16715f93ff7e64fdc2eda567ce28ebd27f6ead6f78d778ef1e866cf48f9dcf4dfdba71ba591d2490dd334ee0df5c03ff68b5c3a9fb8360e57711aa6958c92572c8f8552b2dfead9d0329c1289f70b4354a4736bbc585e887b2a8a56cf2704670e665830cece7cde24513053ad540756ded6e9e109b6501bf52759b43a0b1d5facddfb02aa1d4161}}

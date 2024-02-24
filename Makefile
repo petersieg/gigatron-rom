@@ -160,6 +160,33 @@ ROMv5a.rom: Core/* Apps/*/* Makefile interface.json
 burnv5a: ROMv5a.rom
 	minipro -p 'AT27C1024 @DIP40' -w "$<" -y -s
 
+# my own version of v5a with more games/demos
+ROMv5b.rom: Core/* Apps/*/* Makefile interface.json
+	python3 Core/ROMv5b.asm.py\
+		packedPictures=Apps/Pictures/packedPictures.rgb\
+		Snake=Apps/Snake/Snake_v3.gcl\
+		SYS_Racer_v1.py\
+		zippedRacerHorizon=Apps/Racer/Horizon-256x16.rgb\
+		Racer=Apps/Racer/Racer_v2.gcl\
+		Mandelbrot=Apps/Mandelbrot/Mandelbrot_v1.gcl\
+		SYS_Loader_v4.py\
+		Pictures=Apps/Pictures/Pictures_v3.gcl\
+		Loader=Apps/Loader/Loader_v4.gcl\
+		Credits=Apps/Credits/Credits_v3.gcl\
+		Tetronis=Apps/Tetronis/Tetronis_v2.gt1\
+		Bricks=Apps/Bricks/Bricks_v2.gt1\
+		Puzzles=Apps/v5x/puzzles.gt1\
+		Parsec=Apps/v5x/parsec.gt1\
+		Arecibo=Apps/v5x/arecibo.gt1\
+		Mosaic=Apps/Mosaic6502/Mosaic6502.gt1\
+		Egg=Apps/Horizon/Horizon_at67_v1.gt1\
+		Boot=Apps/CardBoot/CardBoot_v1.gcl\
+		Main=Apps/MainMenu/MainMenu_v5b.gcl\
+		Reset=Core/Reset_v5.gcl
+
+burnv5b: ROMv5b.rom
+	minipro -p 'AT27C1024 @DIP40' -w "$<" -y -s
+
 # ROM v4 support `TypeC' game controller signals. There are
 # many small changes under the hood, but no new applications.
 ROMv4.rom: Core/* Apps/*/* Makefile interface.json
